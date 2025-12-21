@@ -170,33 +170,66 @@ You are opencode, an interactive CLI agent specializing in software engineering 
 - **Do Not revert changes:** Do not revert changes to the codebase unless asked to do so by the user.
 ```
 
-## Built-in Specialized Agents
+### Build Plan Mode Change Logic
 
-OpenCode also includes hidden built-in agents for specific tasks:
+OpenCode uses a sophisticated reminder system to manage agent mode transitions, implemented in the `insertReminders` function ([source](https://github.com/sst/opencode/blob/dev/packages/opencode/src/session/prompt.ts#L1004-L1030)):
 
-**Title Generator** ([source](https://github.com/sst/opencode/blob/dev/packages/opencode/src/agent/prompt/title.txt)) - Creates concise conversation titles:
-```txt
-You are a title generator. You output ONLY a thread title. Nothing else.
-...
+```typescript
+function insertReminders(input: {
+  messages: MessageV2Parts[];
+  agent: Agent.Info;
+}) {
+  const userMessage = input.messages.findLast(
+    (msg) => msg.info.role === "user",
+  );
+  if (!userMessage) return input.messages;
+
+  // When entering Plan mode, inject the plan system reminder
+  if (input.agent.name === "plan") {
+    userMessage.parts.push({
+      id: Identifier.ascending("part"),
+      messageID: userMessage.info.id,
+      sessionID: userMessage.info.sessionID,
+      type: "text",
+      text: PROMPT_PLAN, // Contains read-only constraints
+      synthetic: true,
+    });
+  }
+
+  // Detect if we're switching from Plan back to Build mode
+  const wasPlan = input.messages.some(
+    (msg) => msg.info.role === "assistant" && msg.info.agent === "plan",
+  );
+  if (wasPlan && input.agent.name === "build") {
+    userMessage.parts.push({
+      id: Identifier.ascending("part"),
+      messageID: userMessage.info.id,
+      sessionID: userMessage.info.sessionID,
+      type: "text",
+      text: BUILD_SWITCH, // Confirms mode change and permissions
+      synthetic: true,
+    });
+  }
+
+  return input.messages;
+}
 ```
 
-**Summary Generator** ([source](https://github.com/sst/opencode/blob/dev/packages/opencode/src/agent/prompt/summary.txt)) - Condenses conversations to 2 sentences max.
+This function ensures smooth transitions between modes:
 
-**Compaction Agent** ([source](https://github.com/sst/opencode/blob/dev/packages/opencode/src/agent/prompt/compaction.txt)) - Provides detailed summaries focusing on what was done, current work, modified files, and next steps.
+**Plan Mode Entry** ([plan.txt](https://github.com/sst/opencode/blob/dev/packages/opencode/src/session/prompt/plan.txt)):
 
-**Agent Generator** ([source](https://github.com/sst/opencode/blob/dev/packages/opencode/src/agent/prompt/generate.txt)) - Uses the `opencode agent create` command to interactively build new agents based on your requirements.
+- Injects a strict system reminder that forbids all file modifications
+- Restricts bash commands to read-only operations
+- Emphasizes observation and planning over execution
 
-## Built-in Specialized Agents
+**Build Mode Switch** ([build-switch.txt](https://github.com/sst/opencode/blob/dev/packages/opencode/src/session/prompt/build-switch.txt)):
 
-OpenCode also includes hidden built-in agents for specific tasks:
+- Confirms the operational mode change
+- Grants full permissions for file changes and shell commands
+- Signals the agent can now execute actions
 
-**Title Generator** ([source](https://github.com/sst/opencode/blob/dev/packages/opencode/src/agent/prompt/title.txt)) - Creates concise conversation titles (≤50 chars, no explanations, use -ing verbs)
-
-**Summary Generator** ([source](https://github.com/sst/opencode/blob/dev/packages/opencode/src/agent/prompt/summary.txt)) - Condenses conversations to 2 sentences max
-
-**Compaction Agent** ([source](https://github.com/sst/opencode/blob/dev/packages/opencode/src/agent/prompt/compaction.txt)) - Provides detailed summaries focusing on what was done, current work, modified files, and next steps
-
-**Agent Generator** ([source](https://github.com/sst/opencode/blob/dev/packages/opencode/src/agent/prompt/generate.txt)) - Uses the `opencode agent create` command to interactively build new agents
+This system prevents accidental modifications during planning and clearly communicates permission changes when switching modes.
 
 ## Custom Agents: Your Personal Workforce
 
@@ -227,60 +260,6 @@ Provide actionable recommendations with code examples.
 ```
 
 The markdown approach is beautifully simple—just write what the agent should do, and OpenCode handles the rest.
-
-## The Permission System: Safety Meets Autonomy
-
-OpenCode's permission system is granular and powerful. Here's how it actually works:
-
-**Build Agent (Default)**:
-
-- `edit`: "allow" - Can modify any file
-- `bash`: `{"*": "allow"}` - Can run any command
-- `webfetch`: "allow" - Can fetch web content
-- `doom_loop`: "ask" - Protection against infinite loops
-- `external_directory`: "ask" - Access outside project root
-
-**Plan Agent (Restricted)**:
-
-- `edit`: "deny" - Cannot modify files
-- `bash`: Whitelist of read-only commands (git diff/log/status, ls, grep, cat, head, tail, etc.)
-- `webfetch`: "allow" - Can research online
-- Any command not in the whitelist requires "ask" permission
-
-**Custom Permissions**:
-
-```json
-{
-  "agent": {
-    "build": {
-      "permission": {
-        "bash": {
-          "git push": "ask",
-          "rm -rf *": "deny",
-          "*": "allow"
-        }
-      }
-    }
-  }
-}
-```
-
-You can also set permissions for specific bash commands using glob patterns:
-
-```json
-{
-  "permission": {
-    "bash": {
-      "git status": "allow",
-      "git log*": "allow",
-      "git *": "ask", // All other git commands need approval
-      "*": "allow"
-    }
-  }
-}
-```
-
-This means your build agent can run most commands freely, but will ask before pushing to remote, and will outright refuse to run dangerous commands.
 
 ## Temperature: The Creativity Dial
 
