@@ -31,6 +31,7 @@
     }
   },
   "tools": {},
+  "plugin": ["opencode-skills"],
   "agent": {},
   "command": {},
   "formatter": {},
