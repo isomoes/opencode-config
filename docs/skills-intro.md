@@ -4,6 +4,7 @@ description: A comprehensive guide to OpenCode's skills system and how to give a
 date: 2025-12-22
 author: OpenCode Team
 tags: [skills, capabilities, knowledge, workflows]
+video: "https://www.bilibili.com/video/BV1c7B4BgEV1/"
 ---
 
 # Skills: Teaching Your AI New Tricks

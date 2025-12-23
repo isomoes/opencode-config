@@ -4,6 +4,7 @@ description: A deep dive into OpenCode's agent system and how to orchestrate you
 date: 2025-12-21
 author: OpenCode Team
 tags: [agents, orchestration, productivity]
+video: "https://www.bilibili.com/video/BV1iXBEBVESt/"
 ---
 
 # Agents: Your AI Team of Specialists
