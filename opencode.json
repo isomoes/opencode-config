@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "small_model": "zhipuai-coding-plan/glm-4.7",
+  "small_model": "zhipuai-coding-plan/glm-4.6",
   "theme": "github",
   "autoupdate": true,
   "share": "manual",
@@ -31,7 +31,7 @@
     }
   },
   "tools": {},
-  "plugin": ["opencode-skills"],
+  "plugin": [],
   "agent": {},
   "command": {},
   "formatter": {},

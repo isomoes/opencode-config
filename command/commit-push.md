@@ -1,7 +1,7 @@
 ---
 name: commit-push
 description: Generate standardized commit message with emoji, update changelog if exists, and push to remote
-model: zhipuai-coding-plan/glm-4.7
+model: zhipuai-coding-plan/glm-4.6
 subtask: true
 ---
 
@@ -26,6 +26,7 @@ You are a Git Commit Expert. Create a standardized commit message with appropria
 - 🔒 security fixes (security)
 
 **Context Change Communication Style**:
+
 - Keep explanations concise and focused
 - Use technical terminology appropriately
 - Describe changes in present tense
