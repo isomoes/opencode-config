@@ -15,22 +15,19 @@ OpenRouter provides access to dozens of language model providers through a singl
 
 When deciding between Claude Code Pro plan and OpenRouter, it's important to understand the key differences:
 
-### Claude Code Pro Plan
+### Feature Comparison
 
-- **Monthly Cost**: $20/month
-- **Token Budget**: $140 worth of tokens per month (you pay $20, get $140 value)
-- **Time-Based Limitation**: Usage is limited by time constraints, not just token count
-- **Model Restrictions**: Limited to specific Claude models (e.g., claude-sonnet-4-5-20250929)
-- **Fixed Allocation**: Cannot scale beyond the monthly allocation
-
-### OpenRouter Advantages
-
-- **Flexible Budget**: Pay-as-you-go pricing with no monthly caps
-- **No Time Limits**: Use your tokens whenever you need them
-- **Model Variety**: Access to multiple providers (Anthropic, OpenAI, Google, etc.)
-- **Cost Optimization**: Choose the most cost-effective model for each task
-- **Unlimited Scalability**: Scale usage based on your needs without plan restrictions
-- **Unified Interface**: Switch between providers without changing code
+| Feature                | Claude Code Pro Plan          | OpenRouter                                           |
+| ---------------------- | ----------------------------- | ---------------------------------------------------- |
+| **Monthly Cost**       | $20/month                     | Pay-as-you-go                                        |
+| **Token Budget**       | $140 worth of tokens included | No monthly caps                                      |
+| **Time Limitations**   | Yes, time-based constraints   | No time limits                                       |
+| **Model Access**       | Limited to Claude models only | Multiple providers (Anthropic, OpenAI, Google, etc.) |
+| **Model Restrictions** | Specific Claude models only   | Choose any model from any provider                   |
+| **Scalability**        | Fixed monthly allocation      | Unlimited scaling                                    |
+| **Budget Flexibility** | Fixed $20/month               | Pay only what you use                                |
+| **Cost Optimization**  | Fixed value ($140 for $20)    | Choose cost-effective model per task                 |
+| **Provider Switching** | Not applicable                | Switch providers without code changes                |
 
 ## Real-World Cost Analysis
 
@@ -42,7 +39,7 @@ Use the provided script to analyze your actual Claude usage:
 python script/claude-token-counter.py
 ```
 
-Script: [`script/claude-token-counter.py`](script/claude-token-counter.py)
+Script: [`script/claude-token-counter.py`](../script/claude-token-counter.py)
 
 This script:
 
