@@ -1,0 +1,11 @@
+model,input_price_per_1m,output_price_per_1m,cache_read_price_per_1m,cache_write_price_per_1m
+claude-sonnet-4-5-20250929,3.00,15.00,0.30,3.75
+claude-haiku-4-5-20251001,0.80,4.00,0.08,1.00
+claude-opus-4-5-20250514,15.00,75.00,1.50,18.75
+claude-sonnet-4-5-20250514,3.00,15.00,0.30,3.75
+claude-haiku-4-5-20250514,0.80,4.00,0.08,1.00
+glm-4.6,2.00,2.00,0.20,0.20
+glm-4.5-air,0.50,0.50,0.05,0.05
+deepseek-chat,0.14,0.28,0.02,0.02
+kimi-k2-turbo-preview,1.00,2.00,0.10,0.10
+mimo-v2-flash,0.10,0.10,0.01,0.01

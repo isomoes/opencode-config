@@ -2,7 +2,7 @@
 title: "Skills: Teaching Your AI New Tricks"
 description: A comprehensive guide to OpenCode's skills system and how to give agents specialized knowledge and capabilities
 date: 2025-12-22
-author: OpenCode Team
+author: isomo
 tags: [skills, capabilities, knowledge, workflows]
 video: "https://www.bilibili.com/video/BV1c7B4BgEV1/"
 ---

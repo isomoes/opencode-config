@@ -119,9 +119,12 @@ OpenCode loads configuration from multiple locations (merged together):
    - Use `"deny"` for sensitive operations
 
 5. **Add custom commands**:
-   - `/test` - Run test suite
-   - `/lint` - Run linter
-   - `/deploy` - Deploy command
+    - `/test` - Run test suite
+    - `/lint` - Run linter
+    - `/deploy` - Deploy command
+
+6. **Use the Claude token counter**:
+    - Run `python3 script/claude-token-counter.py` to analyze Claude conversation logs
 
 6. **Set up instructions**:
    - Add CONTRIBUTING.md
