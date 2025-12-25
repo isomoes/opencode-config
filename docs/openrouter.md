@@ -4,7 +4,7 @@ description: A comprehensive guide to using OpenRouter with OpenCode to access m
 date: 2025-12-24
 author: isomo
 tags: [openrouter, llm, providers, integration]
-video: ""
+video: "https://www.bilibili.com/video/BV1hfBjBhE26"
 ---
 
 # OpenRouter: Connecting to Multiple LLM Providers
