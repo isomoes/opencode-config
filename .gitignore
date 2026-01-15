@@ -155,3 +155,7 @@ config/local/
 # Optional
 opencode*.json
 !opencode.json
+antigravity-accounts.json
+.gitignore
+antigravity-signature-cache.json
+antigravity-logs/
