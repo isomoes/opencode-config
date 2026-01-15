@@ -134,11 +134,12 @@
   "mcp": {
     "all-in-mcp": {
       "type": "local",
-      "command": ["pipx", "run", "all-in-mcp"],
+      "command": ["pipx", "run", "all-in-mcp==0.4.2"],
       "enabled": true,
       "environment": {
         "APAPER": "false",
-        "GITHUB_REPO_MCP": "true"
+        "GITHUB_REPO_MCP": "true",
+        "QWEN_SEARCH": "true"
       }
     }
   },
