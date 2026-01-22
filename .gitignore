@@ -159,3 +159,4 @@ antigravity-accounts.json
 .gitignore
 antigravity-signature-cache.json
 antigravity-logs/
+antigravity-accounts.json.*.tmp
