@@ -108,7 +108,10 @@
     }
   },
   "tools": {},
-  "plugin": ["opencode-antigravity-auth@beta"],
+  "plugin": [
+    "opencode-antigravity-auth@beta",
+    "opencode-anthropic-auth@latest"
+  ],
   "agent": {},
   "command": {},
   "formatter": {},
