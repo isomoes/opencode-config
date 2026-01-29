@@ -109,7 +109,7 @@
   },
   "tools": {},
   "plugin": [
-    "opencode-antigravity-auth@beta",
+    "opencode-antigravity-auth@latest",
     "opencode-anthropic-auth@latest"
   ],
   "agent": {},
