@@ -1,6 +1,7 @@
 import type { Plugin } from "@opencode-ai/plugin";
+import { platform } from "os";
 
-interface DunstifyOptions {
+interface NotificationOptions {
   title?: string;
   message: string;
   urgency?: "low" | "normal" | "critical";
@@ -11,9 +12,9 @@ interface DunstifyOptions {
 }
 
 /**
- * Send a dunstify notification
+ * Send a notification using the appropriate system command
  */
-async function sendDunstify($: any, options: DunstifyOptions): Promise<void> {
+async function sendNotification($: any, options: NotificationOptions): Promise<void> {
   const {
     title = "OpenCode",
     message,
@@ -24,31 +25,56 @@ async function sendDunstify($: any, options: DunstifyOptions): Promise<void> {
     timeout,
   } = options;
 
-  const args = [
-    title,
-    message,
-    "-u",
-    urgency,
-    "-i",
-    icon,
-    "-a",
-    appname,
-    "-c",
-    category,
-  ];
-
-  if (timeout !== undefined) {
-    args.push("-t", String(timeout));
-  }
+  const currentPlatform = platform();
 
   try {
-    await $`dunstify ${args}`;
+    if (currentPlatform === "darwin") {
+      // macOS - use terminal-notifier for better notification visibility
+      const args = [
+        "-title", title,
+        "-message", message,
+        "-sound", "default",
+        "-ignoreDnD",  // Ignore Do Not Disturb mode
+        "-sender", "com.apple.Terminal",  // Set sender to Terminal app
+        "-activate", "com.apple.Terminal",  // Activate Terminal when clicked (helps with visibility)
+      ];
+
+      // Add timeout if specified (in seconds for terminal-notifier)
+      if (timeout !== undefined) {
+        args.push("-timeout", String(Math.floor(timeout / 1000)));
+      }
+
+      await $`terminal-notifier ${args}`;
+    } else if (currentPlatform === "linux") {
+      // Linux - use dunstify
+      const args = [
+        title,
+        message,
+        "-u",
+        urgency,
+        "-i",
+        icon,
+        "-a",
+        appname,
+        "-c",
+        category,
+      ];
+
+      if (timeout !== undefined) {
+        args.push("-t", String(timeout));
+      }
+
+      await $`dunstify ${args}`;
+    } else {
+      // Unsupported platform
+      console.log(`Notifications not supported on platform: ${currentPlatform}`);
+    }
   } catch (error) {
-    // Silently fail if dunstify is not available
-    console.error("Failed to send dunstify notification:", error);
+    // Silently fail if notification command is not available
+    console.error("Failed to send notification:", error);
   }
 }
-
+//
 /**
  * Extract the last user prompt from session messages
  */
@@ -104,10 +130,11 @@ function createPromptPreview(prompt: string): string {
 }
 
 /**
- * Dunstify Notification Plugin for OpenCode
+ * Cross-Platform Notification Plugin for OpenCode
  *
- * Sends desktop notifications using dunstify for various OpenCode events.
- * This is particularly useful for Linux users running the dunst notification daemon.
+ * Sends desktop notifications for various OpenCode events.
+ * - macOS: Uses osascript with AppleScript
+ * - Linux: Uses dunstify (requires dunst notification daemon)
  *
  * @example
  * // Basic usage - just load the plugin
@@ -143,7 +170,7 @@ export const DunstifyPlugin: Plugin = async ({
         const lastPrompt = await getLastUserPrompt(client, sessionID);
         const promptPreview = createPromptPreview(lastPrompt);
 
-        await sendDunstify($, {
+        await sendNotification($, {
           title: "OpenCode",
           message: `Last prompt: ${promptPreview}`,
           urgency: "normal",
