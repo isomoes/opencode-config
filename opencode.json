@@ -26,13 +26,13 @@
       "command": [
         "pipx",
         "run",
-        "all-in-mcp==0.4.2"
+        "all-in-mcp==0.4.5"
       ],
       "enabled": true,
       "environment": {
         "APAPER": "false",
         "GITHUB_REPO_MCP": "true",
-        "QWEN_SEARCH": "true"
+        "QWEN_SEARCH": "false"
       }
     }
   },
