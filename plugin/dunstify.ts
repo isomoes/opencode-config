@@ -114,6 +114,27 @@ async function getLastUserPrompt(
 }
 
 /**
+ * Check whether a session is the top-level (main) session
+ */
+async function isMainSession(client: any, sessionID: string): Promise<boolean> {
+  try {
+    const response = await client.session.get({
+      path: { id: sessionID },
+    });
+
+    const session = response?.data;
+    if (!session) {
+      return false;
+    }
+
+    return !session.parentID;
+  } catch (error) {
+    console.error("Failed to fetch session info:", error);
+    return false;
+  }
+}
+
+/**
  * Create a prompt preview string
  */
 function createPromptPreview(prompt: string): string {
@@ -164,6 +185,11 @@ export const DunstifyPlugin: Plugin = async ({
       if (event.type === "session.idle") {
         const sessionID = event.properties?.sessionID;
         if (!sessionID) {
+          return;
+        }
+
+        const mainSession = await isMainSession(client, sessionID);
+        if (!mainSession) {
           return;
         }
 
