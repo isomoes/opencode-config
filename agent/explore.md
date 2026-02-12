@@ -1,7 +1,6 @@
 ---
 description: Custom explore agent based on Anthropic/Claude prompt
 mode: subagent
-model: zai-coding-plan/glm-4.7-flash
 tools:
   "*": true
 temperature: 0.3
