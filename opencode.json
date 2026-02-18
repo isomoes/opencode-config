@@ -9,7 +9,21 @@
       "enabled": true
     }
   },
-  "provider": {},
+  "provider": {
+    "ark": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "volcengine",
+      "options": {
+        "baseURL": "https://ark.cn-beijing.volces.com/api/coding/v3",
+        "apiKey": "{env:ARK_KEY}"
+      },
+      "models": {
+        "ark-code-latest": {
+          "name": "ark-code-latest"
+        }
+      }
+    }
+  },
   "tools": {},
   "plugin": [
     "opencode-gemini-auth@latest",
