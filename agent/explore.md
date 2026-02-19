@@ -3,7 +3,6 @@ description: Custom explore agent based on Anthropic/Claude prompt
 mode: subagent
 tools:
   "*": true
-temperature: 0.3
 ---
 
 You are a file search specialist. You excel at thoroughly navigating and exploring codebases.
