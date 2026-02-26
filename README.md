@@ -6,6 +6,13 @@ This repository contains the configuration for [OpenCode](https://opencode.ai), 
 
 OpenCode is a terminal-based AI coding assistant that provides intelligent code completion, analysis, and development workflows. This configuration is customized with specific providers, models, and keybindings.
 
+## plugins/
+
+The `plugins/` directory contains local TypeScript plugins loaded by OpenCode for editor and desktop integration:
+
+- `plugins/dunstify.ts` - Sends desktop notifications for key session events.
+- `plugins/nvim-reload.ts` - Auto-reloads edited files in running Neovim instances.
+
 ## Current Configuration
 
 ### Model Configuration
