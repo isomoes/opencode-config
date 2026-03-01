@@ -5,14 +5,14 @@ import { join } from "path";
 /**
  * Neovim Buffer Auto-Reload Plugin
  *
- * When OpenCode edits a file, sends `:checktime <file>` to all running Neovim
- * instances so only the affected buffer reloads — not all buffers.
+ * When OpenCode edits a file, sends `:checktime` to all running Neovim
+ * instances so modified buffers are reloaded.
  *
  * Performance design:
  * - Socket list is cached at startup (not re-scanned on every edit)
  * - Stale sockets are pruned from the cache on first failure
  * - Reloads are sent to all nvim instances in parallel
- * - A short debounce (100ms) deduplicates rapid consecutive edits to the same file
+ * - A short debounce (100ms) deduplicates rapid consecutive edits
  *
  * No Neovim config or shell config changes required — Neovim automatically
  * creates sockets at /run/user/<uid>/nvim.<pid>.<N> which this plugin discovers.
@@ -24,8 +24,8 @@ export const NvimReloadPlugin: Plugin = async ({ $ }) => {
   // Cache sockets at startup — avoids filesystem scan on every file.edited event
   let socketCache: Set<string> = new Set(discoverSockets());
 
-  // Debounce map: filepath -> timer id
-  const pendingDebounce = new Map<string, ReturnType<typeof setTimeout>>();
+  // Debounce timer for rapid consecutive edit events
+  let pendingDebounce: ReturnType<typeof setTimeout> | undefined;
 
   function discoverSockets(): string[] {
     try {
@@ -38,17 +38,12 @@ export const NvimReloadPlugin: Plugin = async ({ $ }) => {
   }
 
   /**
-   * Send checktime for a specific file to one socket.
+   * Send checktime to one socket.
    * Returns false if the socket is stale (nvim is gone).
    */
-  async function reloadInSocket(
-    socket: string,
-    file: string,
-  ): Promise<boolean> {
+  async function reloadInSocket(socket: string): Promise<boolean> {
     try {
-      // Use :checktime <file> — only reloads the buffer for that exact file,
-      // leaving all other buffers untouched.
-      await $`nvim --server ${socket} --remote-send ${"<Esc>:checktime " + file + "\n"}`.quiet();
+      await $`nvim --server ${socket} --remote-send ${"<Esc>:checktime\n"}`.quiet();
       return true;
     } catch {
       return false; // stale socket
@@ -56,17 +51,17 @@ export const NvimReloadPlugin: Plugin = async ({ $ }) => {
   }
 
   /**
-   * Broadcast checktime for a specific file to all cached sockets in parallel.
+   * Broadcast checktime to all cached sockets in parallel.
    * Prune any sockets that are no longer alive.
    */
-  async function broadcastReload(file: string): Promise<void> {
+  async function broadcastReload(): Promise<void> {
     if (socketCache.size === 0) {
       return;
     }
 
     const sockets = [...socketCache];
     const results = await Promise.allSettled(
-      sockets.map((socket) => reloadInSocket(socket, file)),
+      sockets.map((socket) => reloadInSocket(socket)),
     );
 
     // Prune stale sockets from cache
@@ -90,21 +85,13 @@ export const NvimReloadPlugin: Plugin = async ({ $ }) => {
 
       if (event.type !== "file.edited") return;
 
-      const file = event.properties.file;
-      if (!file) return;
+      // Debounce rapid edits (common when tools write in chunks).
+      if (pendingDebounce) clearTimeout(pendingDebounce);
 
-      // Debounce: if the same file fires multiple edits within 100ms, collapse
-      // them into a single checktime (common when tools write in chunks).
-      const existing = pendingDebounce.get(file);
-      if (existing) clearTimeout(existing);
-
-      pendingDebounce.set(
-        file,
-        setTimeout(async () => {
-          pendingDebounce.delete(file);
-          await broadcastReload(file);
-        }, 100),
-      );
+      pendingDebounce = setTimeout(async () => {
+        pendingDebounce = undefined;
+        await broadcastReload();
+      }, 100);
     },
   };
 };
