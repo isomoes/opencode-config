@@ -16,6 +16,13 @@
         }
       }
     },
+    "openai": {
+      "options": {
+        "websearch_cited": {
+          "model": "gpt-5.2"
+        }
+      }
+    },
     "bailian-coding-plan": {
       "npm": "@ai-sdk/anthropic",
       "name": "Bailian Coding Plan",
@@ -90,7 +97,10 @@
     }
   },
   "tools": {},
-  "plugin": ["opencode-anthropic-auth@latest"],
+  "plugin": [
+    "opencode-anthropic-auth@latest",
+    "opencode-websearch-cited@1.2.0"
+  ],
   "agent": {},
   "command": {},
   "formatter": {},
