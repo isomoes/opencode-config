@@ -16,6 +16,22 @@
         }
       }
     },
+    "cliproxy": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "cliproxy",
+      "options": {
+        "baseURL": "http://127.0.0.1:8317/v1",
+        "apiKey": "sk-Evk6FtFsvN1nvPVnsHOP6gJrvqmKNJ0c4HTwG049oWZ2S"
+      },
+      "models": {
+        "gpt-5.4": {
+          "name": "gpt-5.4"
+        },
+        "gpt-5.3-codex": {
+          "name": "gpt-5.3-codex"
+        }
+      }
+    },
     "openai": {
       "options": {
         "websearch_cited": {
