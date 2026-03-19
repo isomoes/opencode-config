@@ -95,6 +95,7 @@
       }
     }
   },
+  "small_model": "openai/gpt-5.1-codex-mini",
   "tools": {},
   "plugin": [
     "opencode-anthropic-auth@latest",
