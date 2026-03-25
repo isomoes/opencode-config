@@ -18,8 +18,8 @@
     },
     "openai": {
       "options": {
-        "baseURL": "http://127.0.0.1:8317/v1",
-        "apiKey": "sk-Evk6FtFsvN1nvPVnsHOP6gJrvqmKNJ0c4HTwG049oWZ2S"
+        "baseURL": "http://43.128.87.171:8317/v1",
+        "apiKey": "{env:OPENAI_API_KEY}"
       }
     },
     "bailian-coding-plan": {
