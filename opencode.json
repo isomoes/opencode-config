@@ -18,8 +18,14 @@
     },
     "openai": {
       "options": {
-        "baseURL": "http://43.128.87.171:8317/v1",
+        "baseURL": "http://localhost:8317/v1",
         "apiKey": "{env:OPENAI_API_KEY}"
+      }
+    },
+    "anthropic": {
+      "options": {
+        "baseURL": "http://localhost:8317/v1",
+        "apiKey": "{env:ANTHROPIC_AUTH_TOKEN}"
       }
     },
     "bailian-coding-plan": {
