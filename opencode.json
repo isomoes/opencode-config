@@ -3,109 +3,28 @@
   "autoupdate": true,
   "share": "manual",
   "provider": {
-    "ark": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "volcengine",
-      "options": {
-        "baseURL": "https://ark.cn-beijing.volces.com/api/coding/v3",
-        "apiKey": "{env:ARK_KEY}"
-      },
-      "models": {
-        "ark-code-latest": {
-          "name": "ark-code-latest"
-        }
-      }
-    },
     "openai": {
       "options": {
-        "baseURL": "http://localhost:8317/v1",
-        "apiKey": "{env:OPENAI_API_KEY}"
+        "baseURL": "https://aiapi.xjh2000.top/v1",
+        "apiKey": "{env:AIAPI_AUTH_KEY}"
       }
     },
     "anthropic": {
       "options": {
-        "baseURL": "http://localhost:8317/v1",
-        "apiKey": "{env:ANTHROPIC_AUTH_TOKEN}"
+        "baseURL": "https://aiapi.xjh2000.top/v1",
+        "apiKey": "{env:AIAPI_AUTH_KEY}"
       }
     },
-    "bailian-coding-plan": {
-      "npm": "@ai-sdk/anthropic",
-      "name": "Bailian Coding Plan",
+    "google": {
       "options": {
-        "baseURL": "https://coding.dashscope.aliyuncs.com/apps/anthropic/v1",
-        "apiKey": "{env:BAILIAN_CODING_KEY}"
-      },
-      "models": {
-        "qwen3.5-plus": {
-          "name": "Qwen3.5 Plus",
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "options": {
-            "thinking": {
-              "type": "enabled",
-              "budgetTokens": 1024
-            }
-          }
-        },
-        "qwen3-max-2026-01-23": {
-          "name": "Qwen3 Max 2026-01-23"
-        },
-        "qwen3-coder-next": {
-          "name": "Qwen3 Coder Next"
-        },
-        "qwen3-coder-plus": {
-          "name": "Qwen3 Coder Plus"
-        },
-        "MiniMax-M2.5": {
-          "name": "MiniMax M2.5",
-          "options": {
-            "thinking": {
-              "type": "enabled",
-              "budgetTokens": 1024
-            }
-          }
-        },
-        "glm-5": {
-          "name": "GLM-5",
-          "options": {
-            "thinking": {
-              "type": "enabled",
-              "budgetTokens": 1024
-            }
-          }
-        },
-        "glm-4.7": {
-          "name": "GLM-4.7",
-          "options": {
-            "thinking": {
-              "type": "enabled",
-              "budgetTokens": 1024
-            }
-          }
-        },
-        "kimi-k2.5": {
-          "name": "Kimi K2.5",
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "options": {
-            "thinking": {
-              "type": "enabled",
-              "budgetTokens": 1024
-            }
-          }
-        }
+        "baseURL": "https://aiapi.xjh2000.top/v1",
+        "apiKey": "{env:AIAPI_AUTH_KEY}"
       }
     }
   },
-  "small_model": "openai/gpt-5.1-codex-mini",
+  "plugin": [],
   "tools": {},
-  "plugin": [
-    "opencode-anthropic-auth@latest",
-  ],
+  "small_model": "openai/gpt-5.4-mini",
   "agent": {},
   "command": {},
   "formatter": {},
