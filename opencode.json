@@ -5,19 +5,19 @@
   "provider": {
     "openai": {
       "options": {
-        "baseURL": "https://aiapi.xjh2000.top/v1",
+        "baseURL": "https://aiapi.isomoes.site/v1",
         "apiKey": "{env:AIAPI_AUTH_KEY}"
       }
     },
     "anthropic": {
       "options": {
-        "baseURL": "https://aiapi.xjh2000.top/v1",
+        "baseURL": "https://aiapi.isomoes.site/v1",
         "apiKey": "{env:AIAPI_AUTH_KEY}"
       }
     },
     "google": {
       "options": {
-        "baseURL": "https://aiapi.xjh2000.top/v1",
+        "baseURL": "https://aiapi.isomoes.site/v1",
         "apiKey": "{env:AIAPI_AUTH_KEY}"
       }
     }
