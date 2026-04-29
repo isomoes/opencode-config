@@ -32,6 +32,11 @@
         "CONTEXT7_API_KEY": "{env:C7_KEY}"
       },
       "enabled": true
+    },
+    "ddg-search": {
+      "type": "local",
+      "command": ["uvx", "duckduckgo-mcp-server"],
+      "enabled": true
     }
   },
   "instructions": [],
