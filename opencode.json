@@ -5,8 +5,8 @@
   "provider": {
     "openai": {
       "options": {
-        "baseURL": "https://aiapi.isomoes.site/v1",
-        "apiKey": "{env:AIAPI_AUTH_KEY}"
+        "baseURL": "http://xsec.fun:7015/v1",
+        "apiKey": "{env:CLIPROXY_API_KEY}"
       }
     },
     "google": {
