@@ -22,7 +22,7 @@
   "command": {},
   "formatter": {},
   "lsp": {},
-  "permission": {},
+  "permission": "allow",
   "mcp": {
     "context7": {
       "type": "remote",

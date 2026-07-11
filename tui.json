@@ -1,8 +1,10 @@
 {
   "$schema": "https://opencode.ai/tui.json",
   "theme": "github-dark-colorblind",
+  "plugin": ["./tui-plugins/history-search.ts"],
   "keybinds": {
     "leader": "ctrl+x",
+    "session_rename": "none",
     "app_exit": "ctrl+c,<leader>q",
     "editor_open": "<leader>e",
     "theme_list": "<leader>t",
