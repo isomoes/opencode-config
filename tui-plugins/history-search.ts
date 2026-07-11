@@ -395,7 +395,6 @@ export const tui: TuiPlugin = async (api) => {
         workspace: (api as any).workspace?.current?.(),
         text,
       });
-      api.ui.toast({ variant: "success", message: "Prompt inserted from history" });
     } catch (error) {
       api.ui.toast({
         variant: "error",
