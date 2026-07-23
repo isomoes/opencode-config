@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Create the per-working-tree directory used for SDD task briefs, reports,
+# and the progress ledger, then print its absolute path.
+set -euo pipefail
+
+root=$(git rev-parse --show-toplevel)
+dir="$root/.superpowers/sdd"
+mkdir -p "$dir"
+printf '*\n' > "$dir/.gitignore"
+cd "$dir" && pwd
