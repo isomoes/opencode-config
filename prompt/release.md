@@ -1,6 +1,6 @@
 # Release Prompt
 
-Use this prompt when preparing a release for `isomoes/opencode`. Pushing a
+Use this prompt when preparing a release for `isomoes/opencode-config`. Pushing a
 `v*` tag triggers `.github/workflows/release.yml`, which verifies the OCX
 registry version and creates a GitHub Release whose body is extracted from
 `CHANGELOG.md`. A successful release then triggers
@@ -9,7 +9,7 @@ registry version and creates a GitHub Release whose body is extracted from
 ## Prompt
 
 ```md
-Prepare a release for `isomoes/opencode`.
+Prepare a release for `isomoes/opencode-config`.
 
 Release target: `v<version>`
 Release date: `<YYYY-MM-DD>`
@@ -50,7 +50,7 @@ Do the following in order:
    - the `Release` workflow run is green
    - the `Publish OCX Registry` workflow run is green
    - the release appears under `Releases` with the expected notes
-   - `https://isomoes.github.io/opencode/index.json` serves the new version
+   - `https://isomoes.github.io/opencode-config/index.json` serves the new version
 
 8. Report:
    - the version released

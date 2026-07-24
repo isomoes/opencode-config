@@ -8,7 +8,7 @@ The reusable command, terminal-title plugin, skills, and MCP servers are publish
 the `isomoes/opencode` [OCX](https://ocx.kdco.dev) bundle:
 
 ```bash
-ocx registry add https://isomoes.github.io/opencode --name isomoes --global
+ocx registry add https://isomoes.github.io/opencode-config --name isomoes --global
 ocx add isomoes/opencode --global
 ```
 
@@ -16,7 +16,7 @@ For a project-local install, omit `--global` and run `ocx init` first. An
 ephemeral install without saving the registry is also supported:
 
 ```bash
-ocx add isomoes/opencode --from https://isomoes.github.io/opencode --global
+ocx add isomoes/opencode --from https://isomoes.github.io/opencode-config --global
 ```
 
 Set `C7_KEY` for authenticated Context7 access and install
