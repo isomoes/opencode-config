@@ -4,7 +4,7 @@
 	// under files/, which is the source layout expected by `ocx build`.
 	"$schema": "https://ocx.kdco.dev/schemas/v2/registry.json",
 	"name": "isomoes",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"author": "isomoes",
 
 	"components": [
