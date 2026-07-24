@@ -2,13 +2,44 @@
 
 Personal global configuration for [OpenCode](https://opencode.ai), a terminal-based AI coding agent. Lives at `~/.config/opencode/`.
 
+## Install via OCX
+
+The reusable command, terminal-title plugin, skills, and MCP servers are published as
+the `isomoes/opencode` [OCX](https://ocx.kdco.dev) bundle:
+
+```bash
+ocx registry add https://isomoes.github.io/opencode --name isomoes --global
+ocx add isomoes/opencode --global
+```
+
+For a project-local install, omit `--global` and run `ocx init` first. An
+ephemeral install without saving the registry is also supported:
+
+```bash
+ocx add isomoes/opencode --from https://isomoes.github.io/opencode --global
+```
+
+Set `C7_KEY` for authenticated Context7 access and install
+[`uv`](https://docs.astral.sh/uv/) for the DuckDuckGo MCP server's `uvx`
+launcher. Personal permissions, sharing policy, TUI keybindings, TUI plugins,
+and themes are intentionally not changed by the bundle.
+
+To build the static registry locally (requires Bun):
+
+```bash
+./scripts/build-registry.sh
+```
+
+Releases are prepared with [`prompt/release.md`](./prompt/release.md). Pushing
+a version tag such as `v1.0.0` creates the GitHub Release; a successful release
+then triggers publication of the OCX registry to GitHub Pages.
+
 ## Layout
 
 | Path           | Purpose                                                                 |
 | -------------- | ----------------------------------------------------------------------- |
 | `opencode.json`| Core config: providers, plugins, MCP servers, permissions                |
 | `tui.json`     | TUI config: theme, keybindings, scroll, TUI plugins                      |
-| `agent/`       | Custom agents (`explore`)                                                |
 | `command/`     | Custom commands (`/commit-message`)                                      |
 | `plugins/`     | Local plugins: `dunstify` (desktop notifications), `nvim-reload` (auto-reload files in Neovim), `terminal-title` |
 | `tui-plugins/` | TUI plugins: `history-search`                                            |

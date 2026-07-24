@@ -1,0 +1,168 @@
+{
+	// OCX registry manifest for the reusable parts of this OpenCode setup.
+	// scripts/build-registry.sh stages the repository's global-config layout
+	// under files/, which is the source layout expected by `ocx build`.
+	"$schema": "https://ocx.kdco.dev/schemas/v2/registry.json",
+	"name": "isomoes",
+	"version": "1.0.0",
+	"author": "isomoes",
+
+	"components": [
+		{
+			"name": "commit-message",
+			"type": "command",
+			"description": "Generate and apply a concise emoji Conventional Commit message from the current changes.",
+			"files": ["commands/commit-message.md"]
+		},
+		{
+			"name": "terminal-title",
+			"type": "plugin",
+			"description": "Show the current OpenCode session status and first prompt in the terminal title.",
+			"files": ["plugins/terminal-title.ts"]
+		},
+		{
+			"name": "find-skills",
+			"type": "skill",
+			"description": "Discover and install agent skills when users ask for reusable capabilities.",
+			"files": ["skills/find-skills/SKILL.md"]
+		},
+		{
+			"name": "dispatching-parallel-agents",
+			"type": "skill",
+			"description": "Delegate independent work to parallel agents when tasks do not share state.",
+			"files": ["skills/superpowers/dispatching-parallel-agents/SKILL.md"]
+		},
+		{
+			"name": "executing-plans",
+			"type": "skill",
+			"description": "Execute a written implementation plan with explicit review checkpoints.",
+			"files": ["skills/superpowers/executing-plans/SKILL.md"]
+		},
+		{
+			"name": "finishing-a-development-branch",
+			"type": "skill",
+			"description": "Finish verified development work through merge, pull request, or cleanup options.",
+			"files": ["skills/superpowers/finishing-a-development-branch/SKILL.md"]
+		},
+		{
+			"name": "subagent-driven-development",
+			"type": "skill",
+			"description": "Implement plans by assigning independent tasks to focused subagents.",
+			"files": [
+				"skills/superpowers/subagent-driven-development/SKILL.md",
+				"skills/superpowers/subagent-driven-development/implementer-prompt.md",
+				"skills/superpowers/subagent-driven-development/scripts/sdd-workspace",
+				"skills/superpowers/subagent-driven-development/scripts/task-brief"
+			]
+		},
+		{
+			"name": "systematic-debugging",
+			"type": "skill",
+			"description": "Diagnose bugs and test failures methodically before proposing fixes.",
+			"files": [
+				"skills/superpowers/systematic-debugging/SKILL.md",
+				"skills/superpowers/systematic-debugging/CREATION-LOG.md",
+				"skills/superpowers/systematic-debugging/condition-based-waiting-example.ts",
+				"skills/superpowers/systematic-debugging/condition-based-waiting.md",
+				"skills/superpowers/systematic-debugging/defense-in-depth.md",
+				"skills/superpowers/systematic-debugging/find-polluter.sh",
+				"skills/superpowers/systematic-debugging/root-cause-tracing.md",
+				"skills/superpowers/systematic-debugging/test-academic.md",
+				"skills/superpowers/systematic-debugging/test-pressure-1.md",
+				"skills/superpowers/systematic-debugging/test-pressure-2.md",
+				"skills/superpowers/systematic-debugging/test-pressure-3.md"
+			]
+		},
+		{
+			"name": "test-driven-development",
+			"type": "skill",
+			"description": "Implement features and fixes by writing a failing test before production code.",
+			"files": [
+				"skills/superpowers/test-driven-development/SKILL.md",
+				"skills/superpowers/test-driven-development/testing-anti-patterns.md"
+			]
+		},
+		{
+			"name": "verification-before-completion",
+			"type": "skill",
+			"description": "Require fresh verification evidence before claiming development work is complete.",
+			"files": ["skills/superpowers/verification-before-completion/SKILL.md"]
+		},
+		{
+			"name": "writing-plans",
+			"type": "skill",
+			"description": "Create implementation plans for multi-step work before changing code.",
+			"files": [
+				"skills/superpowers/writing-plans/SKILL.md",
+				"skills/superpowers/writing-plans/plan-document-reviewer-prompt.md"
+			]
+		},
+		{
+			"name": "writing-skills",
+			"type": "skill",
+			"description": "Create, edit, and verify reusable agent skills.",
+			"files": [
+				"skills/superpowers/writing-skills/SKILL.md",
+				"skills/superpowers/writing-skills/anthropic-best-practices.md",
+				"skills/superpowers/writing-skills/examples/CLAUDE_MD_TESTING.md",
+				"skills/superpowers/writing-skills/graphviz-conventions.dot",
+				"skills/superpowers/writing-skills/persuasion-principles.md",
+				"skills/superpowers/writing-skills/render-graphs.js",
+				"skills/superpowers/writing-skills/testing-skills-with-subagents.md"
+			]
+		},
+		{
+			"name": "mcp-servers",
+			"type": "bundle",
+			"description": "Register Context7 documentation lookup and DuckDuckGo web search MCP servers.",
+			"files": [],
+			"opencode": {
+				"mcp": {
+					"context7": {
+						"type": "remote",
+						"url": "https://mcp.context7.com/mcp",
+						"headers": {
+							"CONTEXT7_API_KEY": "{env:C7_KEY}"
+						},
+						"enabled": true
+					},
+					"ddg-search": {
+						"type": "local",
+						"command": ["uvx", "duckduckgo-mcp-server"],
+						"enabled": true
+					}
+				}
+			}
+		},
+		{
+			"name": "superpowers",
+			"type": "bundle",
+			"description": "Complete Superpowers development workflow skill collection.",
+			"files": [],
+			"dependencies": [
+				"dispatching-parallel-agents",
+				"executing-plans",
+				"finishing-a-development-branch",
+				"subagent-driven-development",
+				"systematic-debugging",
+				"test-driven-development",
+				"verification-before-completion",
+				"writing-plans",
+				"writing-skills"
+			]
+		},
+		{
+			"name": "opencode",
+			"type": "bundle",
+			"description": "Reusable isomoes OpenCode setup: command, terminal-title plugin, skills, and MCP servers.",
+			"files": [],
+			"dependencies": [
+				"commit-message",
+				"terminal-title",
+				"find-skills",
+				"superpowers",
+				"mcp-servers"
+			]
+		}
+	]
+}

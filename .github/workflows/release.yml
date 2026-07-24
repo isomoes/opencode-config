@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g. v1.0.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
+
+      - name: Resolve tag name
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag_name=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify registry version matches tag
+        run: |
+          TAG_NAME="${{ steps.tag.outputs.tag_name }}"
+          VERSION="${TAG_NAME#v}"
+
+          REGISTRY_VERSION=$(grep -m1 '"version"' registry.jsonc | sed 's/.*"version": *"\([^"]*\)".*/\1/')
+          if [ "$REGISTRY_VERSION" != "$VERSION" ]; then
+            echo "::error::registry.jsonc version ($REGISTRY_VERSION) does not match tag ($TAG_NAME)"
+            exit 1
+          fi
+
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          TAG_NAME="${{ steps.tag.outputs.tag_name }}"
+          VERSION="${TAG_NAME#v}"
+
+          awk -v version="$VERSION" '
+            $0 ~ "^## \\[" version "\\]" { in_section = 1; next }
+            in_section && /^## \[/ { exit }
+            in_section { print }
+          ' CHANGELOG.md > RELEASE_NOTES.md
+
+          sed -i -e '/./,$!d' -e ':a;/^\s*$/{$d;N;ba;}' RELEASE_NOTES.md
+
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "Release notes for ${TAG_NAME} were not found in CHANGELOG.md." > RELEASE_NOTES.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag_name }}
+          name: Release ${{ steps.tag.outputs.tag_name }}
+          draft: false
+          prerelease: false
+          body_path: RELEASE_NOTES.md
