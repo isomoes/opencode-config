@@ -1,5 +1,4 @@
 ---
-name: commit-message
 description: Generate high-quality emoji conventional commit messages
 subtask: true
 ---

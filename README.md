@@ -4,7 +4,7 @@ Personal global configuration for [OpenCode](https://opencode.ai), a terminal-ba
 
 ## Install via OCX
 
-The reusable command, terminal-title plugin, skills, and MCP servers are published as
+The reusable command, skills, and Context7 MCP server are published as
 the `isomoes/opencode` [OCX](https://ocx.kdco.dev) bundle:
 
 ```bash
@@ -19,10 +19,9 @@ ephemeral install without saving the registry is also supported:
 ocx add isomoes/opencode --from https://isomoes.github.io/opencode-config --global
 ```
 
-Set `C7_KEY` for authenticated Context7 access and install
-[`uv`](https://docs.astral.sh/uv/) for the DuckDuckGo MCP server's `uvx`
-launcher. Personal permissions, sharing policy, TUI keybindings, TUI plugins,
-and themes are intentionally not changed by the bundle.
+Set `C7_KEY` for authenticated Context7 access. Personal permissions, sharing
+policy, TUI keybindings, TUI plugins, and themes are intentionally not changed
+by the bundle.
 
 To build the static registry locally (requires Bun):
 
@@ -39,10 +38,9 @@ then triggers publication of the OCX registry to GitHub Pages.
 | Path           | Purpose                                                                 |
 | -------------- | ----------------------------------------------------------------------- |
 | `opencode.json`| Core config: providers, plugins, MCP servers, permissions                |
-| `tui.json`     | TUI config: theme, keybindings, scroll, TUI plugins                      |
-| `command/`     | Custom commands (`/commit-message`)                                      |
-| `plugins/`     | Local plugins: `dunstify` (desktop notifications), `nvim-reload` (auto-reload files in Neovim), `terminal-title` |
-| `tui-plugins/` | TUI plugins: `history-search`                                            |
+| `cli.json`     | CLI/TUI config: theme, keybindings, scroll                               |
+| `commands/`    | Custom commands (`/commit-message`)                                      |
+| `plugins/`     | Local plugin: `nvim-reload` (auto-reload files in Neovim)                |
 | `themes/`      | Custom themes (`github-dark-colorblind`)                                 |
 | `skills/`      | Skills: `superpowers` collection (TDD, debugging, planning, ...), `find-skills` |
 
@@ -67,9 +65,8 @@ then triggers publication of the OCX registry to GitHub Pages.
 | Server       | Type   | Details                                        |
 | ------------ | ------ | ---------------------------------------------- |
 | `context7`   | Remote | `https://mcp.context7.com/mcp` (key: `C7_KEY`) |
-| `ddg-search` | Local  | `uvx duckduckgo-mcp-server`                    |
 
-## TUI (`tui.json`)
+## CLI/TUI (`cli.json`)
 
 Theme: `github-dark-colorblind` · Scroll speed: 3 (acceleration on) · Leader key: `Ctrl+X`
 
@@ -94,4 +91,4 @@ Note: config is loaded once at startup — restart OpenCode after changes.
 
 ## Documentation
 
-[Docs](https://opencode.ai/docs) · [Config](https://opencode.ai/docs/config) · [Providers](https://opencode.ai/docs/providers) · [Agents](https://opencode.ai/docs/agents) · [MCP](https://opencode.ai/docs/mcp-servers) · [Tools](https://opencode.ai/docs/tools)
+[Docs](https://opencode.ai/v2/docs) · [Config](https://opencode.ai/v2/docs/config) · [Providers](https://opencode.ai/v2/docs/providers) · [Agents](https://opencode.ai/v2/docs/agents) · [MCP](https://opencode.ai/v2/docs/mcp-servers) · [Permissions](https://opencode.ai/v2/docs/permissions)

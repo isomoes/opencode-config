@@ -15,12 +15,6 @@
 			"files": ["commands/commit-message.md"]
 		},
 		{
-			"name": "terminal-title",
-			"type": "plugin",
-			"description": "Show the current OpenCode session status and first prompt in the terminal title.",
-			"files": ["plugins/terminal-title.ts"]
-		},
-		{
 			"name": "find-skills",
 			"type": "skill",
 			"description": "Discover and install agent skills when users ask for reusable capabilities.",
@@ -114,7 +108,7 @@
 		{
 			"name": "mcp-servers",
 			"type": "bundle",
-			"description": "Register Context7 documentation lookup and DuckDuckGo web search MCP servers.",
+			"description": "Register the Context7 documentation lookup MCP server.",
 			"files": [],
 			"opencode": {
 				"mcp": {
@@ -124,11 +118,7 @@
 						"headers": {
 							"CONTEXT7_API_KEY": "{env:C7_KEY}"
 						},
-						"enabled": true
-					},
-					"ddg-search": {
-						"type": "local",
-						"command": ["uvx", "duckduckgo-mcp-server"],
+						"oauth": false,
 						"enabled": true
 					}
 				}
@@ -154,11 +144,10 @@
 		{
 			"name": "opencode",
 			"type": "bundle",
-			"description": "Reusable isomoes OpenCode setup: command, terminal-title plugin, skills, and MCP servers.",
+			"description": "Reusable isomoes OpenCode setup: command, skills, and Context7 MCP server.",
 			"files": [],
 			"dependencies": [
 				"commit-message",
-				"terminal-title",
 				"find-skills",
 				"superpowers",
 				"mcp-servers"

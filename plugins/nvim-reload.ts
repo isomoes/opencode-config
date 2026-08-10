@@ -1,4 +1,5 @@
-import type { Plugin } from "@opencode-ai/plugin";
+import { Plugin } from "@opencode-ai/plugin";
+import { execFile } from "child_process";
 import { readdirSync } from "fs";
 import { join } from "path";
 
@@ -17,81 +18,79 @@ import { join } from "path";
  * No Neovim config or shell config changes required — Neovim automatically
  * creates sockets at /run/user/<uid>/nvim.<pid>.<N> which this plugin discovers.
  */
-export const NvimReloadPlugin: Plugin = async ({ $ }) => {
-  const uid = process.getuid?.() ?? 1000;
-  const runtimeDir = `/run/user/${uid}`;
+export default Plugin.define({
+  id: "isomoes.nvim-reload",
+  setup: ({ event }) => {
+    const uid = process.getuid?.() ?? 1000;
+    const runtimeDir = `/run/user/${uid}`;
 
-  // Cache sockets at startup — avoids filesystem scan on every file.edited event
-  let socketCache: Set<string> = new Set(discoverSockets());
+    // Cache sockets at startup to avoid unnecessary filesystem scans.
+    const socketCache = new Set(discoverSockets());
 
-  // Debounce timer for rapid consecutive edit events
-  let pendingDebounce: ReturnType<typeof setTimeout> | undefined;
+    let pendingDebounce: ReturnType<typeof setTimeout> | undefined;
 
-  function discoverSockets(): string[] {
-    try {
-      return readdirSync(runtimeDir)
-        .filter((name) => name.startsWith("nvim."))
-        .map((name) => join(runtimeDir, name));
-    } catch {
-      return [];
-    }
-  }
-
-  /**
-   * Send checktime to one socket.
-   * Returns false if the socket is stale (nvim is gone).
-   */
-  async function reloadInSocket(socket: string): Promise<boolean> {
-    try {
-      await $`nvim --server ${socket} --remote-send ${"<Esc>:checktime\n"}`.quiet();
-      return true;
-    } catch {
-      return false; // stale socket
-    }
-  }
-
-  /**
-   * Broadcast checktime to all cached sockets in parallel.
-   * Prune any sockets that are no longer alive.
-   */
-  async function broadcastReload(): Promise<void> {
-    if (socketCache.size === 0) {
-      return;
-    }
-
-    const sockets = [...socketCache];
-    const results = await Promise.allSettled(
-      sockets.map((socket) => reloadInSocket(socket)),
-    );
-
-    // Prune stale sockets from cache
-    results.forEach((result, i) => {
-      if (result.status === "fulfilled" && result.value === false) {
-        socketCache.delete(sockets[i]);
+    function discoverSockets(): string[] {
+      try {
+        return readdirSync(runtimeDir)
+          .filter((name) => name.startsWith("nvim."))
+          .map((name) => join(runtimeDir, name));
+      } catch {
+        return [];
       }
-    });
-  }
+    }
 
-  return {
-    event: async ({ event }) => {
-      // Pick up newly opened nvim instances by refreshing the cache on file
-      // watcher events (low frequency, cheap, keeps cache fresh without
-      // scanning on every single file.edited).
-      if (event.type === "file.watcher.updated") {
-        const fresh = discoverSockets();
-        fresh.forEach((s) => socketCache.add(s));
-        return;
+    /** Send checktime to one socket, returning false for stale sockets. */
+    function reloadInSocket(socket: string): Promise<boolean> {
+      return new Promise((resolve) => {
+        execFile(
+          "nvim",
+          ["--server", socket, "--remote-send", "<Esc>:checktime\n"],
+          (error) => resolve(!error),
+        );
+      });
+    }
+
+    /** Broadcast checktime in parallel and prune stale sockets. */
+    async function broadcastReload(): Promise<void> {
+      if (socketCache.size === 0) return;
+
+      const sockets = [...socketCache];
+      const results = await Promise.allSettled(
+        sockets.map((socket) => reloadInSocket(socket)),
+      );
+
+      results.forEach((result, index) => {
+        if (result.status === "fulfilled" && !result.value) {
+          socketCache.delete(sockets[index]);
+        }
+      });
+    }
+
+    const controller = new AbortController();
+    const listen = async () => {
+      try {
+        for await (const update of event.subscribe({
+          signal: controller.signal,
+        })) {
+          if (update.type !== "filesystem.changed") continue;
+
+          discoverSockets().forEach((socket) => socketCache.add(socket));
+          if (pendingDebounce) clearTimeout(pendingDebounce);
+          pendingDebounce = setTimeout(async () => {
+            pendingDebounce = undefined;
+            await broadcastReload();
+          }, 100);
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) throw error;
       }
+    };
 
-      if (event.type !== "file.edited") return;
-
-      // Debounce rapid edits (common when tools write in chunks).
+    const task = listen();
+    return async () => {
+      controller.abort();
       if (pendingDebounce) clearTimeout(pendingDebounce);
-
-      pendingDebounce = setTimeout(async () => {
-        pendingDebounce = undefined;
-        await broadcastReload();
-      }, 100);
-    },
-  };
-};
+      await task;
+    };
+  },
+});

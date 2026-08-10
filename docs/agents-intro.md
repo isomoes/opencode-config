@@ -238,7 +238,7 @@ The real power comes when you start creating your own agents. OpenCode lets you 
 
 ### Markdown Files
 
-Create a file `~/.config/opencode/agent/security-auditor.md`:
+Create a file `~/.config/opencode/agents/security-auditor.md`:
 
 ```markdown
 ---
