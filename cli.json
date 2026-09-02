@@ -199,7 +199,8 @@
     "single": true
   },
   "terminal": {
-    "title": true
+    "title": true,
+    "copy": "select"
   },
   "attention": {
     "enabled": true,
@@ -213,11 +214,16 @@
     "scrollbar": true,
     "thinking": "hide",
     "markdown": "rendered",
-    "grouping": "auto"
+    "grouping": "auto",
+    "new_location": "launch"
   },
   "animations": true,
   "tabs": {
-    "scope": "global",
-    "layout": "horizontal"
+    "scope": "cwd",
+    "layout": "horizontal",
+    "enabled": true
+  },
+  "prompt": {
+    "editor": true
   }
 }
