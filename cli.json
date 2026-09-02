@@ -7,7 +7,6 @@
     "app.exit": "ctrl+c",
     "app.debug": "none",
     "app.console": "none",
-
     "app.toggle.animations": "none",
     "app.toggle.file_context": "none",
     "app.toggle.diffwrap": "none",
@@ -198,10 +197,17 @@
   "terminal": {
     "title": true
   },
+  "attention": {
+    "enabled": true,
+    "notifications": true,
+    "sound": true,
+    "volume": 0.4,
+    "sound_pack": "opencode.default"
+  },
   "session": {
     "sidebar": "hide",
     "scrollbar": true,
-    "thinking": "show",
+    "thinking": "hide",
     "markdown": "rendered",
     "grouping": "auto"
   },
