@@ -2,6 +2,7 @@
   "theme": {
     "name": "github-dark-colorblind"
   },
+  "plugins": ["./tui-plugins/history-search.ts"],
   "keybinds": {
     "leader": "ctrl+space",
     "app.exit": "ctrl+c",
@@ -52,7 +53,7 @@
     "session.tab.reopen": "ctrl+shift+t",
     "session.timeline": "<leader>g",
     "session.fork": "none",
-    "session.rename": "ctrl+r",
+    "session.rename": "none",
     "session.delete": "ctrl+d",
     "session.share": "none",
     "session.unshare": "none",
