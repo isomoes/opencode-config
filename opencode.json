@@ -21,6 +21,14 @@
         },
         "oauth": false,
         "disabled": false
+      },
+      "github": {
+        "type": "remote",
+        "url": "https://api.githubcopilot.com/mcp/",
+        "oauth": false,
+        "headers": {
+          "Authorization": "Bearer {env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+        }
       }
     }
   },
