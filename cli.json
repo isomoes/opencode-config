@@ -2,7 +2,10 @@
   "theme": {
     "name": "github-dark-colorblind"
   },
-  "plugins": ["./tui-plugins/history-search.ts"],
+  "plugins": [
+    "./tui-plugins/history-search.tsx",
+    "./tui-plugins/session-metrics.tsx"
+  ],
   "keybinds": {
     "leader": "ctrl+space",
     "app.exit": "ctrl+c",

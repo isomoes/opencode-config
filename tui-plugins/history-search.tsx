@@ -1,4 +1,5 @@
 import { Plugin } from "@opencode-ai/plugin/tui";
+import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
@@ -9,8 +10,8 @@ import { dirname, join } from "node:path";
  * Implements https://github.com/anomalyco/opencode/issues/5062 as a TUI
  * plugin (reverse-i-search): press ctrl+r (or run "Search Prompt History"
  * from the command palette / "/history-search") to search ALL prompts ever
- * sent — every project, every session. Selecting an entry inserts it into the
- * prompt editor without sending it.
+ * sent — every project, every session. Selecting an entry copies it to the
+ * clipboard without sending it.
  *
  * History sources:
  * - ~/.local/share/opencode/opencode.db  (all sent user prompts, all projects)
@@ -25,7 +26,7 @@ import { dirname, join } from "node:path";
  *   full scan from ~730ms to ~230ms on a 2GB db.
  * - Dialog options are memoized per cache generation, not rebuilt per open.
  *
- * Registered in cli.json:  "plugins": ["./tui-plugins/history-search.ts"]
+ * Registered in cli.json:  "plugins": ["./tui-plugins/history-search.tsx"]
  * Requires "session.rename": "none" in cli.json keybinds to free ctrl+r.
  *
  * Implementation approach follows jia-kai/opencode-productivity.
@@ -238,6 +239,58 @@ function dedupeKey(prompt: string): string {
   return oneLine(prompt.slice(0, 512)).toLowerCase();
 }
 
+function copyToClipboard(text: string): Promise<void> {
+  const commands: [string, string[]][] =
+    process.platform === "darwin"
+      ? [["pbcopy", []]]
+      : [
+          ["wl-copy", []],
+          ["xclip", ["-selection", "clipboard"]],
+          ["xsel", ["--clipboard", "--input"]],
+        ];
+
+  return new Promise((resolve, reject) => {
+    const tryNext = (index: number, lastError?: Error) => {
+      const command = commands[index];
+      if (!command) {
+        reject(lastError ?? new Error("No supported clipboard command found"));
+        return;
+      }
+
+      let child: ReturnType<typeof spawn>;
+      let finished = false;
+      try {
+        child = spawn(command[0], command[1]);
+      } catch (error) {
+        tryNext(index + 1, error instanceof Error ? error : new Error(String(error)));
+        return;
+      }
+
+      let stderr = "";
+      child.stderr?.on("data", (chunk) => {
+        stderr += chunk.toString();
+      });
+      child.on("error", (error) => {
+        if (finished) return;
+        finished = true;
+        tryNext(index + 1, error);
+      });
+      child.on("close", (code) => {
+        if (finished) return;
+        finished = true;
+        if (code === 0) {
+          resolve();
+        } else {
+          tryNext(index + 1, new Error(stderr.trim() || `${command[0]} exited with code ${code}`));
+        }
+      });
+      child.stdin?.end(text);
+    };
+
+    tryNext(0);
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Search index
 // ---------------------------------------------------------------------------
@@ -346,8 +399,8 @@ export const tui = Plugin.define({
   const insertPrompt = async (text: string) => {
     if (!text) return;
     try {
-      await (context.client as any).tui.appendPrompt({ body: { text } });
-      context.ui.toast.show({ variant: "success", message: "Prompt inserted from history" });
+      await copyToClipboard(text);
+      context.ui.toast.show({ variant: "success", message: "Prompt copied to clipboard; paste it into the editor" });
     } catch (error) {
       context.ui.toast.show({
         variant: "error",
@@ -364,7 +417,7 @@ export const tui = Plugin.define({
         {
           id: "history.search",
           title: "Search Prompt History",
-          description: "Reverse-search all prompt history and insert into the prompt editor",
+          description: "Reverse-search all prompt history and copy a prompt to the clipboard",
           group: "History",
           bind: "ctrl+r",
           palette: true,
@@ -379,6 +432,7 @@ export const tui = Plugin.define({
     }));
     return null;
   } });
+
   },
 });
 
