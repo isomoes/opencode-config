@@ -3,8 +3,10 @@
     "name": "github-dark-colorblind"
   },
   "plugins": [
+    "-opencode.notifications",
     "./tui-plugins/history-search.tsx",
-    "./tui-plugins/session-metrics.tsx"
+    "./tui-plugins/session-metrics.tsx",
+    "./tui-plugins/window-title-notifications.ts"
   ],
   "keybinds": {
     "leader": "ctrl+space",
