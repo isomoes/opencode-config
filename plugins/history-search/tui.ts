@@ -11,7 +11,8 @@ import { dirname, join } from "node:path";
  * plugin (reverse-i-search): press ctrl+r (or run "Search Prompt History"
  * from the command palette / "/history-search") to search ALL prompts ever
  * sent — every project, every session. Selecting an entry copies it to the
- * clipboard without sending it.
+ * clipboard without sending it. Clipboard insertion is used because the
+ * `tui.prompt.append` event is not available in all OpenCode v2 dev builds.
  *
  * History sources:
  * - ~/.local/share/opencode/opencode.db  (all sent user prompts, all projects)
@@ -26,7 +27,7 @@ import { dirname, join } from "node:path";
  *   full scan from ~730ms to ~230ms on a 2GB db.
  * - Dialog options are memoized per cache generation, not rebuilt per open.
  *
- * Registered in cli.json:  "plugins": ["./tui-plugins/history-search.tsx"]
+ * Registered in cli.json:  "plugins": ["./plugins/history-search/tui.ts"]
  * Requires "session.rename": "none" in cli.json keybinds to free ctrl+r.
  *
  * Implementation approach follows jia-kai/opencode-productivity.

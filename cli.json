@@ -2,12 +2,7 @@
   "theme": {
     "name": "github-dark-colorblind"
   },
-  "plugins": [
-    "-opencode.notifications",
-    "./tui-plugins/history-search.tsx",
-    "./tui-plugins/session-metrics.tsx",
-    "./tui-plugins/window-title-notifications.ts"
-  ],
+  "plugins": [],
   "keybinds": {
     "leader": "ctrl+space",
     "app.exit": "ctrl+c",
@@ -198,7 +193,8 @@
   "diffs": {
     "wrap": "word",
     "view": "auto",
-    "single": true
+    "single": false,
+    "tree": true
   },
   "terminal": {
     "title": true,

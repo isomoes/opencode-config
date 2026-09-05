@@ -171,7 +171,21 @@ export default Plugin.define({
           notification: notification && !isSubagent ? { when: "blurred" } : false,
           sound: { name: sound, when: "always" },
         })
-        .catch(() => {});
+        .then((result) => {
+          // Keep the result observable while diagnosing attention integration.
+          if (!result.ok && result.skipped) {
+            context.ui.toast.show({
+              variant: "warning",
+              message: `Notification skipped: ${result.skipped}`,
+            });
+          }
+        })
+        .catch((error) => {
+          context.ui.toast.show({
+            variant: "error",
+            message: error instanceof Error ? error.message : "Notification failed",
+          });
+        });
     };
 
     const pendingForms = new Set<string>();
@@ -186,15 +200,12 @@ export default Plugin.define({
         case "session.renamed":
           scheduleTitleUpdate();
           return;
-        case "session.execution.succeeded":
-        case "session.execution.failed":
-        case "session.execution.interrupted": {
+        case "session.idle":
+        case "session.error": {
           scheduleTitleUpdate();
           const sessionID = details.data.sessionID;
-          const failed = details.type === "session.execution.failed";
-          const interrupted = details.type === "session.execution.interrupted";
-          const state = failed ? "failed" : interrupted ? "interrupted" : "finished";
-          notify(sessionID, state, failed ? "error" : "done");
+          const failed = details.type === "session.error";
+          notify(sessionID, failed ? "failed" : "finished", failed ? "error" : "done");
           return;
         }
         case "form.created": {
