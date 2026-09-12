@@ -9,10 +9,8 @@ staging="$(mktemp -d)"
 trap 'rm -rf "$staging"' EXIT
 
 cp "$repo_root/registry.jsonc" "$staging/"
-mkdir -p "$staging/files/commands" "$staging/files/skills"
+mkdir -p "$staging/files/commands"
 cp "$repo_root/commands/commit-message.md" "$staging/files/commands/"
-cp -R "$repo_root/.agents/skills/find-skills" "$staging/files/skills/find-skills"
-cp -R "$repo_root/skills/superpowers" "$staging/files/skills/superpowers"
 
 bunx ocx build "$staging" --out "$out_dir" --show-validation
 

@@ -1,7 +1,11 @@
-import { Plugin } from "@opencode-ai/plugin/tui";
-import { spawn } from "node:child_process";
+import type { TuiPlugin } from "@opencode-ai/plugin/tui";
+// Resolved at runtime to the HOST's solid-js instance by opencode's TUI
+// plugin loader (@opentui/solid runtime-plugin-support), so signals created
+// here integrate with the TUI's reactive rendering.
+import { createSignal } from "solid-js";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
+import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
 
 /**
@@ -9,10 +13,10 @@ import { dirname, join } from "node:path";
  *
  * Implements https://github.com/anomalyco/opencode/issues/5062 as a TUI
  * plugin (reverse-i-search): press ctrl+r (or run "Search Prompt History"
- * from the command palette / "/history-search") to search ALL prompts ever
- * sent — every project, every session. Selecting an entry copies it to the
- * clipboard without sending it. Clipboard insertion is used because the
- * `tui.prompt.append` event is not available in all OpenCode v2 dev builds.
+ * from the command palette / "/history-search") to open an in-TUI select
+ * dialog over ALL prompts ever sent — every project, every session. Typing
+ * in the dialog filters live; selecting an entry inserts it into the prompt
+ * editor without sending it.
  *
  * History sources:
  * - ~/.local/share/opencode/opencode.db  (all sent user prompts, all projects)
@@ -27,8 +31,8 @@ import { dirname, join } from "node:path";
  *   full scan from ~730ms to ~230ms on a 2GB db.
  * - Dialog options are memoized per cache generation, not rebuilt per open.
  *
- * Registered in cli.json:  "plugins": ["./plugins/history-search/tui.ts"]
- * Requires "session.rename": "none" in cli.json keybinds to free ctrl+r.
+ * Registered in tui.json:  "plugin": ["./tui-plugins/history-search.ts"]
+ * Requires "session_rename": "none" in tui.json keybinds to free ctrl+r.
  *
  * Implementation approach follows jia-kai/opencode-productivity.
  */
@@ -44,6 +48,9 @@ const MAX_PROMPT_CHARS = 32_000;
  * handlers are O(rendered options). Searching still covers ALL entries —
  * only the displayed slice is capped.
  */
+const VISIBLE_LIMIT = 100;
+/** Per-entry cap on the searchable text (keeps keystroke scans bounded). */
+const SEARCH_TEXT_CHARS = 4_000;
 
 interface HistoryEntry {
   id: string;
@@ -61,9 +68,10 @@ interface CacheFile {
 const DATA_HOME = process.env.XDG_DATA_HOME ?? join(homedir(), ".local", "share");
 const STATE_HOME = process.env.XDG_STATE_HOME ?? join(homedir(), ".local", "state");
 const CACHE_HOME = process.env.XDG_CACHE_HOME ?? join(homedir(), ".cache");
-const DB_PATH = join(DATA_HOME, "opencode", "opencode.db");
+const DB_PATH = process.env.OPENCODE_DB ?? join(DATA_HOME, "opencode", "opencode.db");
 const TUI_HISTORY_PATH = join(STATE_HOME, "opencode", "prompt-history.jsonl");
-const CACHE_PATH = join(CACHE_HOME, "opencode", "history-search-cache.json");
+const DB_CACHE_KEY = createHash("sha256").update(DB_PATH).digest("hex").slice(0, 16);
+const CACHE_PATH = join(CACHE_HOME, "opencode", `history-search-${DB_CACHE_KEY}.json`);
 
 // ---------------------------------------------------------------------------
 // Database loading
@@ -96,6 +104,7 @@ const SQL = `
     AND json_valid(p.data) AND json_extract(p.data, '$.type') = 'text'
     AND json_extract(p.data, '$.text') IS NOT NULL
     AND COALESCE(json_extract(p.data, '$.synthetic'), 0) = 0
+    AND COALESCE(json_extract(p.data, '$.ignored'), 0) = 0
 `;
 
 interface PartRow {
@@ -240,75 +249,49 @@ function dedupeKey(prompt: string): string {
   return oneLine(prompt.slice(0, 512)).toLowerCase();
 }
 
-function copyToClipboard(text: string): Promise<void> {
-  const commands: [string, string[]][] =
-    process.platform === "darwin"
-      ? [["pbcopy", []]]
-      : [
-          ["wl-copy", []],
-          ["xclip", ["-selection", "clipboard"]],
-          ["xsel", ["--clipboard", "--input"]],
-        ];
-
-  return new Promise((resolve, reject) => {
-    const tryNext = (index: number, lastError?: Error) => {
-      const command = commands[index];
-      if (!command) {
-        reject(lastError ?? new Error("No supported clipboard command found"));
-        return;
-      }
-
-      let child: ReturnType<typeof spawn>;
-      let finished = false;
-      try {
-        child = spawn(command[0], command[1]);
-      } catch (error) {
-        tryNext(index + 1, error instanceof Error ? error : new Error(String(error)));
-        return;
-      }
-
-      let stderr = "";
-      child.stderr?.on("data", (chunk) => {
-        stderr += chunk.toString();
-      });
-      child.on("error", (error) => {
-        if (finished) return;
-        finished = true;
-        tryNext(index + 1, error);
-      });
-      child.on("close", (code) => {
-        if (finished) return;
-        finished = true;
-        if (code === 0) {
-          resolve();
-        } else {
-          tryNext(index + 1, new Error(stderr.trim() || `${command[0]} exited with code ${code}`));
-        }
-      });
-      child.stdin?.end(text);
-    };
-
-    tryNext(0);
-  });
-}
-
 // ---------------------------------------------------------------------------
 // Search index
 // ---------------------------------------------------------------------------
 
 interface IndexedOption {
-  /** Dialog option value: a short string, not the entry object. */
+  /** DialogSelect option value: a short string, NOT the entry object. The
+   * dialog runs isDeepEqual(option.value, selected) per rendered option on
+   * every move/mouse event — deep-comparing multi-KB prompt objects there
+   * was a major source of input lag. */
   id: string;
   title: string;
   description: string;
+  /** Lowercased full prompt + directory + date, capped. Unlike the dialog's
+   * built-in filter (title-only), this searches the entire prompt text. */
+  searchText: string;
 }
+
+/** All query tokens must be substrings (fzf --exact style, AND semantics). */
+function searchIndex(index: IndexedOption[], query: string): IndexedOption[] {
+  const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return index.slice(0, VISIBLE_LIMIT);
+  const matches: IndexedOption[] = [];
+  for (const item of index) {
+    let ok = true;
+    for (const token of tokens) {
+      if (!item.searchText.includes(token)) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) {
+      matches.push(item);
+      if (matches.length >= VISIBLE_LIMIT) break; // entries are newest-first
+    }
+  }
+  return matches;
+}
+
 // ---------------------------------------------------------------------------
 // Plugin
 // ---------------------------------------------------------------------------
 
-export const tui = Plugin.define({
-  id: PLUGIN_ID,
-  setup: (context) => {
+export const tui: TuiPlugin = async (api) => {
   let dbEntries: HistoryEntry[] = [];
   let lastSeen = 0;
   let index: IndexedOption[] = [];
@@ -330,6 +313,7 @@ export const tui = Plugin.define({
         id: entry.id,
         title: preview(entry.prompt),
         description,
+        searchText: `${entry.prompt.slice(0, SEARCH_TEXT_CHARS)}\n${description}`.toLowerCase(),
       });
     }
     index = nextIndex;
@@ -378,63 +362,74 @@ export const tui = Plugin.define({
     if (index.length === 0) await refresh();
     void refresh(); // ~1ms incremental: picks up prompts sent since last open
     if (index.length === 0) {
-      context.ui.toast.show({ variant: "warning", message: "No prompt history found" });
+      api.ui.toast({ variant: "warning", message: "No prompt history found" });
       return;
     }
-    const selected = await context.ui.dialog.select({
-      title: "Prompt History",
-      placeholder: `Search ${index.length} prompts...`,
-      options: index.map((item) => ({
-        // Keep each option small so native filtering stays responsive.
-        title: item.title,
-        description: item.description,
-        value: item.id,
-      })),
-    });
-    if (selected) {
-      const entry = byId.get(selected);
-      if (entry) void insertPrompt(entry.prompt);
-    }
+    // Snapshot for this dialog instance; background refreshes apply next open.
+    const snapshotIndex = index;
+    const snapshotById = byId;
+    const toOption = (item: IndexedOption) => ({ title: item.title, description: item.description, value: item.id });
+    // Host-solid signal: `get options()` below makes the dialog re-render
+    // with our own search results while we cap what is actually rendered.
+    const [visible, setVisible] = createSignal(searchIndex(snapshotIndex, "").map(toOption));
+    api.ui.dialog.replace(() =>
+      api.ui.DialogSelect<string>({
+        title: "Prompt History",
+        placeholder: `Filter ${snapshotIndex.length} prompts…`,
+        get options() {
+          return visible();
+        },
+        skipFilter: true, // we filter; the dialog only renders
+        onFilter: (query) => setVisible(searchIndex(snapshotIndex, query).map(toOption)),
+        onSelect: (option) => {
+          api.ui.dialog.clear();
+          const entry = snapshotById.get(option.value);
+          if (entry) void insertPrompt(entry.prompt);
+        },
+      }),
+    );
   };
 
   const insertPrompt = async (text: string) => {
     if (!text) return;
     try {
-      await copyToClipboard(text);
-      context.ui.toast.show({ variant: "success", message: "Prompt copied to clipboard; paste it into the editor" });
+      await api.client.tui.appendPrompt({
+        directory: api.state.path.directory,
+        workspace: (api as any).workspace?.current?.(),
+        text,
+      });
     } catch (error) {
-      context.ui.toast.show({
+      api.ui.toast({
         variant: "error",
         message: error instanceof Error ? error.message : "Failed to insert prompt",
       });
     }
   };
 
-  context.ui.slot({ append: "app", render: () => {
-    context.keymap.layer(() => ({
-      mode: "global",
-      priority: 100,
-      commands: [
-        {
-          id: "history.search",
-          title: "Search Prompt History",
-          description: "Reverse-search all prompt history and copy a prompt to the clipboard",
-          group: "History",
-          bind: "ctrl+r",
-          palette: true,
-          slash: { name: "history-search", aliases: ["prompt-history", "hs"] },
-          suggested: true,
-          run: () => {
-            void openHistoryDialog();
-          },
+  const unregister = api.keymap.registerLayer({
+    priority: 100,
+    commands: [
+      {
+        namespace: "palette",
+        name: "history.search",
+        title: "Search Prompt History",
+        desc: "Reverse-search all prompt history and insert into the prompt editor",
+        category: "History",
+        suggested: true,
+        slashName: "history-search",
+        slashAliases: ["prompt-history", "hs"],
+        run() {
+          void openHistoryDialog();
         },
-      ],
-      bindings: ["history.search"],
-    }));
-    return null;
-  } });
+      },
+    ],
+    bindings: [{ key: "ctrl+r", cmd: "history.search", desc: "Search prompt history", preventDefault: true }],
+  } as any);
 
-  },
-});
+  if (typeof unregister === "function") api.lifecycle.onDispose(unregister);
+};
 
-export default tui;
+export default {
+  id: PLUGIN_ID,
+  tui,
+};

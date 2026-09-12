@@ -2,35 +2,32 @@
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
   "share": "manual",
-  "providers": {},
-  "plugins": [],
-  "agents": {},
-  "commands": {},
   "formatter": {},
   "lsp": {},
-  "permissions": [
-    { "action": "*", "resource": "*", "effect": "allow" }
-  ],
   "mcp": {
-    "servers": {
-      "context7": {
-        "type": "remote",
-        "url": "https://mcp.context7.com/mcp",
-        "headers": {
-          "CONTEXT7_API_KEY": "{env:C7_KEY}"
-        },
-        "oauth": false,
-        "disabled": false
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "{env:C7_KEY}"
       },
-      "github": {
-        "type": "remote",
-        "url": "https://api.githubcopilot.com/mcp/",
-        "oauth": false,
-        "headers": {
-          "Authorization": "Bearer {env:GITHUB_PERSONAL_ACCESS_TOKEN}"
-        }
-      }
+      "oauth": false,
+      "enabled": true
+    },
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+      },
+      "enabled": true
     }
   },
-  "instructions": []
+  "instructions": [],
+  "provider": {},
+  "plugin": [],
+  "agent": {},
+  "command": {},
+  "permission": "allow"
 }
