@@ -1,6 +1,6 @@
 ---
 description: Generate high-quality emoji conventional commit messages
-subtask: true
+subagent: true
 ---
 
 You are an expert Git commit assistant.

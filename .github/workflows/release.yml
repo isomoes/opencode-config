@@ -34,17 +34,6 @@ jobs:
             echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Verify registry version matches tag
-        run: |
-          TAG_NAME="${{ steps.tag.outputs.tag_name }}"
-          VERSION="${TAG_NAME#v}"
-
-          REGISTRY_VERSION=$(grep -m1 '"version"' registry.jsonc | sed 's/.*"version": *"\([^"]*\)".*/\1/')
-          if [ "$REGISTRY_VERSION" != "$VERSION" ]; then
-            echo "::error::registry.jsonc version ($REGISTRY_VERSION) does not match tag ($TAG_NAME)"
-            exit 1
-          fi
-
       - name: Extract release notes from CHANGELOG.md
         run: |
           TAG_NAME="${{ steps.tag.outputs.tag_name }}"

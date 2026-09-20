@@ -1,19 +1,18 @@
-# OpenCode V1 Configuration
+# OpenCode V2 Configuration
 
-Global configuration for OpenCode 1.x, tested with 1.18.30. This submodule lives at `~/.config/opencode/`.
+Global configuration for [OpenCode V2](https://opencode.ai/v2/docs/), targeting 2.0.11. This submodule lives at `~/.config/opencode/`.
 
 ## Configuration
 
 | Path | Purpose |
 | --- | --- |
-| `opencode.json` | V1 providers, commands, permissions, and MCP servers |
-| `tui.json` | Theme, V1 keybindings, attention sounds, scrolling, and TUI plugins |
+| `opencode.json` | V2 providers, commands, permissions, and MCP servers |
+| `cli.json` | Theme, keybindings, tabs, attention sounds, scrolling, and CLI plugins |
 | `commands/` | `/commit-message` command |
-| `tui-plugins/history-search.ts` | Fast prompt history search with `Ctrl+R` |
-| `tui-plugins/session-metrics.ts` | Turns, assistant steps, and estimated LLM/tool time beside the session prompt |
+| `plugins/session-metrics/` | Turns, assistant steps, and estimated LLM/tool time beside the session prompt |
 | `themes/` | Custom themes, including `github-dark-colorblind` |
 
-Automatic updates are enabled, sharing is manual, and permissions allow all actions. No custom provider or authentication plugins are configured. Global custom skills and title-notification plugins remain removed.
+Automatic updates are enabled, sharing is manual, and permissions allow all actions. No custom providers or authentication plugins are configured.
 
 MCP servers:
 
@@ -26,34 +25,23 @@ Both use remote HTTP endpoints with OAuth disabled. Credentials are expanded fro
 
 ## Terminal UI
 
-The leader is **Ctrl+Space**. Press the leader followed by `n` for a new session, `l` for the session list, `e` for the editor, `m` for models, `d` for diffs, or `b` for the sidebar. `Ctrl+P` opens the command palette. `Ctrl+R` searches prompt history and inserts the selection without sending it. `Enter` sends; `Shift+Enter` adds a newline.
+The theme is `github-dark-colorblind`, locked to dark mode, with blue additions and orange deletions. The leader is **Ctrl+Space**.
 
-The latest supported input, diff, navigation, and dialog bindings have been translated to V1 names in `tui.json`. V2 tab management and other unsupported bindings are omitted. Attention notifications and sounds retain their latest settings. See [V1 migration notes](docs/v1-migration.md).
+| Action | Binding |
+| --- | --- |
+| New session / session list | `<leader>n` / `<leader>l` |
+| External editor / models / diffs | `<leader>e` / `<leader>m` / `<leader>d` |
+| Toggle sidebar | `<leader>b` |
+| Command palette / open menu | `Ctrl+P` / `Ctrl+O` |
+| Previous / next session tab | `Ctrl+H` / `Ctrl+L` |
+| Select tab | `<leader>1`…`0` or `Ctrl+1`…`0` |
+| Close / reopen tab | `<leader>w` / `Ctrl+Shift+T` |
+| Send / newline / queue prompt | `Enter` / `Shift+Enter` / `Ctrl+Enter` |
 
-History search honors `OPENCODE_DB` and keeps a separate cache per database. For a V2-to-V1 database conversion, launch V1 with the isolated database:
+CLI settings reload live. Reopen the terminal client after changing plugin entrypoints. See [V2 migration notes](docs/v2-migration.md) for the return from the previous V1 setup.
 
-```bash
-OPENCODE_DB="$HOME/.local/share/opencode/opencode-v1.db" \
-OPENCODE_EXPERIMENTAL_WORKSPACES=true opencode
-```
+## Releases
 
-The local shell function configured during migration already selects this database. Restart OpenCode after changing configuration.
+Pushing a `v*` tag creates a GitHub Release using the matching section of `CHANGELOG.md`. See [the release prompt](prompt/release.md) for the workflow.
 
-## OCX bundle
-
-The registry contains the commit command and the Context7/GitHub MCP settings. Personal permissions, themes, keybindings, and local TUI plugins are not included in the bundle.
-
-```bash
-ocx registry add https://isomoes.github.io/opencode-config --name isomoes --global
-ocx add isomoes/opencode --global
-```
-
-Build and validate the registry locally with Bun:
-
-```bash
-./scripts/build-registry.sh
-```
-
-Version-tag releases retain the existing GitHub Release and Pages workflows. Building locally does not publish the registry.
-
-[OpenCode V1 docs](https://opencode.ai/docs) · [Config](https://opencode.ai/docs/config/) · [Keybinds](https://opencode.ai/docs/keybinds/) · [MCP](https://opencode.ai/docs/mcp-servers/)
+[V2 config](https://opencode.ai/v2/docs/config) · [CLI settings](https://opencode.ai/v2/docs/cli/config) · [Keybinds](https://opencode.ai/v2/docs/cli/keybinds) · [MCP](https://opencode.ai/v2/docs/mcp-servers)

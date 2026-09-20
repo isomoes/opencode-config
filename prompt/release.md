@@ -1,10 +1,8 @@
 # Release Prompt
 
 Use this prompt when preparing a release for `isomoes/opencode-config`. Pushing a
-`v*` tag triggers `.github/workflows/release.yml`, which verifies the OCX
-registry version and creates a GitHub Release whose body is extracted from
-`CHANGELOG.md`. A successful release then triggers
-`.github/workflows/registry.yml` to publish the registry to GitHub Pages.
+`v*` tag triggers `.github/workflows/release.yml`, which creates a GitHub Release
+whose body is extracted from `CHANGELOG.md`.
 
 ## Prompt
 
@@ -25,40 +23,30 @@ Do the following in order:
    - the `## [<version>] - <YYYY-MM-DD>` block becomes the GitHub Release
      body, so trim it to release-worthy bullets
 
-2. Bump the top-level `version` in `registry.jsonc` to `<version>`.
-   The release workflow refuses to publish if it disagrees with the tag.
+2. Validate the configuration and check the diff for accidental changes.
 
-3. Build and validate the OCX registry:
-   `./scripts/build-registry.sh`
-
-4. Stage and commit the changes with a release-style message such as
+3. Stage and commit the changes with a release-style message such as
    `release: v<version>`. Do NOT create the tag in the same commit.
 
-5. Create an annotated tag pointing at the release commit:
+4. Create an annotated tag pointing at the release commit:
    `git tag -a v<version> -m "Release v<version>"`
 
-6. Push the commit and the tag together:
+5. Push the commit and the tag together:
    `git push origin main v<version>`
    The tag push triggers `.github/workflows/release.yml`, which:
-     - verifies `registry.jsonc` matches the tag version
      - extracts the matching `## [<version>]` block from `CHANGELOG.md`
      - creates a GitHub Release named `Release v<version>`
-   After that succeeds, `.github/workflows/registry.yml` builds and deploys
-   the OCX registry to GitHub Pages.
 
-7. Verify on GitHub:
+6. Verify on GitHub:
    - the `Release` workflow run is green
-   - the `Publish OCX Registry` workflow run is green
    - the release appears under `Releases` with the expected notes
-   - `https://isomoes.github.io/opencode-config/index.json` serves the new version
 
-8. Report:
+7. Report:
    - the version released
    - the release commit hash
    - the tag name
-   - both workflow run URLs, the release URL, and the registry URL
+   - the workflow run URL and the release URL
 
-If the version check fails, correct the release commit and create a new tag.
 Do not force-push or replace a published release tag.
 ```
 

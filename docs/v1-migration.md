@@ -1,5 +1,7 @@
 # Return to OpenCode V1
 
+Historical notes for the September 12 rollback. The active configuration has since returned to V2; see [V2 migration notes](v2-migration.md).
+
 Based on the latest fetched `origin/main` commit `896697c`, including the September 2026 changes. The V1 release tag was not used as the final baseline, so the GitHub MCP addition and subsequent removals remain intact.
 
 - Runtime config uses singular V1 `provider`, `plugin`, `agent`, `command`, `permission`, and flat `mcp` keys.
