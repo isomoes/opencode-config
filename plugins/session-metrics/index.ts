@@ -1,3 +1,3 @@
-import { Plugin } from "@opencode/plugin";
+import type { Plugin } from "@opencode/plugin";
 
-export default Plugin.define({ id: "session-metrics", setup() {} });
+export default { id: "session-metrics", setup() {} } satisfies Plugin.Plugin;

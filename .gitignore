@@ -3,8 +3,7 @@
 # Dependencies
 node_modules/
 
-# Development files (not needed for config)
-package.json
+# Lockfiles (kept local)
 bun.lock
 yarn.lock
 package-lock.json
