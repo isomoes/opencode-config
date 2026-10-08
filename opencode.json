@@ -28,7 +28,7 @@
   },
   "instructions": [],
   "providers": {},
-  "plugins": ["opencode-claude-auth-v2@latest"],
+  "plugins": [],
   "agents": {},
   "commands": {},
   "permissions": [
