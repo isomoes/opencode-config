@@ -213,7 +213,7 @@
   "session": {
     "sidebar": "hide",
     "scrollbar": false,
-    "thinking": "show",
+    "thinking": "hide",
     "markdown": "rendered",
     "grouping": "auto",
     "new_location": "launch"
