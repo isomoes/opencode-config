@@ -4,6 +4,11 @@
   "share": "manual",
   "formatter": {},
   "lsp": {},
+  "experimental": {
+    "todo": false,
+    "subagent_depth": 1,
+    "background_compaction": true
+  },
   "mcp": {
     "servers": {
       "context7": {
